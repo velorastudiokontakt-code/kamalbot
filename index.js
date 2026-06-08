@@ -11,6 +11,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const conversations = {};
 const clientData = {};
 const MY_NUMBER = 'whatsapp:+4915222571934';
+const CALENDLY_LINK = 'https://calendly.com/hamudi963963/30min';
 
 const WELCOME_MESSAGE = `Willkommen bei GastroAI! 🎉
 
@@ -25,7 +26,7 @@ und sparen Ihnen nachweislich 3 Stunden täglich. ⏰
 • Wir geben Ihnen einen digitalen Mitarbeiter: 24/7, nie krank, nie im Urlaub 🤖
 
 ⚠️ Demo-Hinweis: Diese Nummer ist 48 Stunden kostenlos aktiv.
-Nach Ablauf bitte "join phrase-suppose" erneut senden.
+Nach Ablauf bitte "join labor-edge" erneut senden.
 
 Nach Vertragsabschluss → eigene WhatsApp-Business-Nummer mit Ihrem Logo! 🚀
 
@@ -111,10 +112,10 @@ PHASE 4 — EINWÄNDE BEHANDELN:
 → "Ich überlege" → "Was hält Sie konkret zurück? Ich beantworte alles ehrlich — auch Nachteile"
 → "Funktioniert das?" → "Deshalb: kostenlose Demo. Sie sehen es live bevor Sie entscheiden"
 
-PHASE 5 — DEMO NUR EINMAL:
-→ "Mo hat morgen um 14:00 Uhr noch einen freien Slot für eine kostenlose 15-Minuten-Demo. Passt Ihnen das?"
-→ Falls nein → "Welcher Tag und Uhrzeit passt besser?"
-→ Nach Bestätigung → "Perfekt! Mo meldet sich in 24 Stunden. 📅"
+PHASE 5 — TERMIN BUCHEN (NUR EINMAL!):
+→ "Mo hat morgen um 14:00 Uhr noch einen freien Slot für eine kostenlose 15-Minuten-Demo."
+→ "Sie können hier direkt einen Termin buchen: https://calendly.com/hamudi963963/30min 📅"
+→ Nach Buchung → "Perfekt! Mo freut sich auf das Gespräch. Bis dann! 😊"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚖️ NACHTEILE EHRLICH NENNEN
@@ -165,11 +166,11 @@ Kurze Nachrichten → Frage was der Kunde wirklich braucht
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 KONTAKT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-WhatsApp direkt: https://wa.me/4917623976931
-Email: gastroaiagency@gmail.com
-Instagram: https://instagram.com/gastroaiagency
-Website: gastroai.info
+📱 Telefon/WhatsApp: +49 176 23976931
+📅 Termin buchen: https://calendly.com/hamudi963963/30min
+
+Wenn Kunde nach Kontakt fragt → NUR Nummer nennen: +49 176 23976931
+NIEMALS Email oder Instagram ungefragt nennen!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💬 KOMMUNIKATIONSREGELN
@@ -179,7 +180,7 @@ Website: gastroai.info
 ✅ NUR EINE Frage pro Nachricht
 ✅ Emojis sparsam: 😊 👍 💡 ✅ 🚀
 ✅ Vollständig antworten — DANN fragen
-✅ Demo/Termin NUR EINMAL
+✅ Termin/Calendly NUR EINMAL erwähnen
 ✅ Vergangene Termine ablehnen freundlich
 ✅ JEDE Antwort mit Geschäftsvorteil verbinden
 ✅ JEDE Antwort mit Frage abschließen
@@ -227,6 +228,20 @@ app.post('/webhook', async (req, res) => {
     return res.send(twiml.toString());
   }
 
+  // فحص لو العميل يريد حجز موعد مباشرة
+  const bookingKeywords = ['termin', 'buchen', 'kalender', 'wann', 'verfügbar', 'demo', 'treffen', 'meeting'];
+  const wantsBooking = bookingKeywords.some(k => message.toLowerCase().includes(k));
+  if (wantsBooking && !clientData[from].calendlySent) {
+    clientData[from].calendlySent = true;
+    const reply = `Super! 😊 Hier können Sie direkt einen kostenlosen 30-Minuten-Termin mit Mo buchen:\n\n📅 ${CALENDLY_LINK}\n\nMo freut sich auf das Gespräch!`;
+    conversations[from].push({ role: 'user', content: message });
+    conversations[from].push({ role: 'assistant', content: reply });
+    const twiml = new twilio.twiml.MessagingResponse();
+    twiml.message(reply);
+    res.type('text/xml');
+    return res.send(twiml.toString());
+  }
+
   conversations[from].push({ role: 'user', content: message });
 
   try {
@@ -244,7 +259,7 @@ app.post('/webhook', async (req, res) => {
     conversations[from].push({ role: 'assistant', content: reply });
     clientData[from].isFirst = false;
 
-    if ((reply.includes('meldet sich') || reply.includes('24 Stunden') || reply.includes('demonstriert')) && !clientData[from].notified) {
+    if ((reply.includes('meldet sich') || reply.includes('24 Stunden') || reply.includes('Calendly') || reply.includes('calendly')) && !clientData[from].notified) {
       clientData[from].notified = true;
       try {
         const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -256,7 +271,7 @@ app.post('/webhook', async (req, res) => {
         await client.messages.create({
           from: process.env.TWILIO_WHATSAPP_NUMBER,
           to: MY_NUMBER,
-          body: `🔔 *Neuer Kunde ist bereit!*\n📱 ${from}\n${clientData[from].hasPartnerCode ? '⭐ START50 verwendet!\n' : ''}\n📝 Zusammenfassung:\n${summary}`
+          body: `🔔 *Neuer Kunde ist bereit!*\n📱 ${from}\n${clientData[from].hasPartnerCode ? '⭐ START50 verwendet!\n' : ''}${clientData[from].calendlySent ? '📅 Hat Calendly-Link erhalten!\n' : ''}\n📝 Zusammenfassung:\n${summary}`
         });
       } catch (e) {
         console.error('Benachrichtigungsfehler:', e.message);
