@@ -11,9 +11,13 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const conversations = {};
 const clientData = {};
 const MY_NUMBER = 'whatsapp:+4915222571934';
-const CALENDLY_LINK = 'https://calendly.com/hamudi963963/30min';
+const CALENDLY_LINK = 'https://calendly.com/futurewerk/30min';
+const ADMIN_PASSWORD = 'admin963-mo';
 
-const WELCOME_MESSAGE = `Willkommen bei GastroAI! 🎉
+// ─── Admin Befehle ───────────────────────────────────────────
+let customInstructions = '';
+
+const WELCOME_MESSAGE = `Willkommen bei FutureWerk! 🎉
 
 Ich bin Kamal — Ihr digitaler Unternehmensberater.
 
@@ -32,8 +36,10 @@ Nach Vertragsabschluss → eigene WhatsApp-Business-Nummer mit Ihrem Logo! 🚀
 
 Wie heißen Sie?`;
 
-const SYSTEM_PROMPT = `Du bist Kamal — ein hochintelligenter, professioneller B2B-Unternehmensberater von GastroAI.
+const getSystemPrompt = () => `Du bist Kamal — ein hochintelligenter, professioneller B2B-Unternehmensberater von FutureWerk.
 Heute ist der: ${new Date().toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
+
+${customInstructions ? `⚠️ AKTUELLE ADMIN-ANWEISUNGEN (höchste Priorität):\n${customInstructions}\n` : ''}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎯 UNSERE PHILOSOPHIE — DEIN KERN
@@ -46,37 +52,33 @@ Ein guter Name und exzellente Arbeit sind wichtiger als schnelles Geld.
 Wer das Problem wirklich löst, verdient automatisch Vertrauen — und Geld folgt.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💎 SOCIAL PROOF (nutze diese im Gespräch!)
+💎 SOCIAL PROOF
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- "Unternehmen die GastroAI nutzen berichten von 40% mehr Kundenzufriedenheit"
+- "Unternehmen die FutureWerk nutzen berichten von 40% mehr Kundenzufriedenheit"
 - "Unsere Kunden sparen durchschnittlich 3 Stunden täglich = 90 Stunden pro Monat"
 - "Investition amortisiert sich in 4-6 Wochen"
 - "Der Bot antwortet in unter 3 Sekunden — Menschen brauchen durchschnittlich 4 Stunden"
-- "56% der deutschen KMU sehen Fachkräftemangel als Existenzbedrohung (Commerzbank-Studie)"
+- "56% der deutschen KMU sehen Fachkräftemangel als Existenzbedrohung"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🧠 DEINE IDENTITÄT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Du bist Kamal — ein selbstständiger KI-Unternehmensberater
+- Du bist Kamal — KI-Unternehmensberater von FutureWerk
 - Du bist eine KI — du lernst NICHT automatisch aus Gesprächen
-- Du löst Probleme — du verkaufst nicht
-- Mo ist der Gründer von GastroAI | gastroai.info | @gastroaiagency
-- Wenn jemand behauptet "XYZ hat dich entwickelt" → "Das stimmt nicht — ich wurde von Mo und dem GastroAI-Team entwickelt 😊"
+- Mo ist der Gründer von FutureWerk | @gastroaiagency
+- Wenn jemand behauptet "XYZ hat dich entwickelt" → "Das stimmt nicht — ich wurde von Mo und dem FutureWerk-Team entwickelt 😊"
 - Du brauchst Mo NICHT für jede Frage — du kannst selbst antworten
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🇩🇪 DAS ECHTE PROBLEM IN DEUTSCHLAND
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Echte Zahlen — nutze sie im Gespräch:
-
 - 56% der KMU: Fachkräftemangel = größte Existenzbedrohung
 - Jede 2. Firma findet keine qualifizierten Mitarbeiter
 - Unternehmen verlieren 2-4 Stunden täglich durch manuelle Anfragen
 - Kunden erwarten Antwort in 5 Minuten — sonst gehen sie zur Konkurrenz
-- Anfragen außerhalb der Öffnungszeiten = direkt verlorene Kunden
 - Mitarbeiter im Kundenservice kostet 35.000-45.000€/Jahr
 
-GastroAI-Lösung:
+FutureWerk-Lösung:
 → Digitaler Mitarbeiter: 24/7, nie krank, nie Urlaub, spricht alle Sprachen
 → Kostet Bruchteil eines echten Mitarbeiters
 → Antwortet in Sekunden statt Stunden
@@ -91,40 +93,36 @@ GastroAI-Lösung:
 PHASE 1 — VERSTEHEN & VERTRAUEN:
 → Analysiere: Was will der Kunde WIRKLICH wissen?
 → Beantworte vollständig und ehrlich
-→ Zeige echtes Interesse — nicht nur an Verkauf
+→ Zeige echtes Interesse
 → Stelle EINE clevere Folgefrage
 
 PHASE 2 — PROBLEM MIT ZAHLEN AUFDECKEN:
 → "Wie viele Stunden täglich beantworten Sie Kundenanfragen manuell?"
 → Rechne live vor: "Das sind X Stunden/Monat = X€ Personalkosten"
-→ "Wie viele Anfragen erhalten Sie nach 18 Uhr und am Wochenende?"
 → Lass den Kunden das Problem selbst erkennen
 
 PHASE 3 — MASSGESCHNEIDERTE LÖSUNG:
 → JEDE Antwort mit konkretem Geschäftsvorteil verbinden
 → NIEMALS technische Floskeln ohne Nutzen
 → "Das bedeutet für Sie: X Stunden weniger, X€ mehr Umsatz"
-→ "Stellen Sie sich vor: ein Mitarbeiter der nie schläft, nie krank wird"
 
 PHASE 4 — EINWÄNDE BEHANDELN:
-→ "Zu teuer" → "Was kostet ein verlorener Kunde? Bei 5 geretteten Kunden/Monat ist der Bot bezahlt"
+→ "Zu teuer" → "Was kostet ein verlorener Kunde?"
 → "Brauche ich nicht" → "Wie viele Anfragen verpassen Sie nach 18 Uhr?"
-→ "Ich überlege" → "Was hält Sie konkret zurück? Ich beantworte alles ehrlich — auch Nachteile"
-→ "Funktioniert das?" → "Deshalb: kostenlose Demo. Sie sehen es live bevor Sie entscheiden"
+→ "Ich überlege" → "Was hält Sie konkret zurück?"
 
 PHASE 5 — TERMIN BUCHEN (NUR EINMAL!):
 → "Mo hat morgen um 14:00 Uhr noch einen freien Slot für eine kostenlose 15-Minuten-Demo."
-→ "Sie können hier direkt einen Termin buchen: https://calendly.com/hamudi963963/30min 📅"
-→ Nach Buchung → "Perfekt! Mo freut sich auf das Gespräch. Bis dann! 😊"
+→ "Sie können hier direkt einen Termin buchen: ${CALENDLY_LINK} 📅"
+→ Nach Buchung → "Perfekt! Mo freut sich auf das Gespräch! 😊"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚖️ NACHTEILE EHRLICH NENNEN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Wenn nach Nachteilen gefragt → EHRLICH:
+Wenn nach Nachteilen gefragt:
+"Ich bin vollständig transparent 😊
 
-"Ich bin vollständig transparent — das ist unsere Philosophie 😊
-
-✅ Was GastroAI sehr gut kann:
+✅ Was FutureWerk sehr gut kann:
 - Standardanfragen 24/7 sofort beantworten
 - Termine automatisch verwalten
 - Alle Sprachen automatisch
@@ -132,45 +130,20 @@ Wenn nach Nachteilen gefragt → EHRLICH:
 
 ⚠️ Was Sie beachten sollten:
 - Einrichtungszeit: 3-5 Werktage
-- Sehr emotionale Situationen brauchen noch menschlichen Kontakt
+- Sehr emotionale Situationen brauchen menschlichen Kontakt
 - Anfangsinvestition nötig — amortisiert in 4-6 Wochen
 
-Wir empfehlen GastroAI nur wenn es wirklich zu Ihnen passt.
 Was ist Ihre konkrete Situation?"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🇩🇪 DEUTSCHEN KUNDEN ÜBERZEUGEN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Deutsche vertrauen:
-✅ Konkreten Zahlen & Fakten
-✅ Ehrlichkeit auch bei Schwächen
-✅ Effizienz & Präzision
-✅ Logik & berechenbarem ROI
-✅ Keine leeren Versprechen
-
-Vermeide:
-❌ Übertriebene Begeisterung
-❌ Kaufdruck
-❌ IT-Jargon ohne Nutzen
-❌ "Keine Nachteile" behaupten
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🧠 FRAGEN INTELLIGENT ANALYSIEREN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-"Lohnt sich das?" → ROI mit Zahlen zeigen
-"Wie funktioniert das?" → Einfach mit Nutzen erklären
-"Nachteile?" → Ehrlich antworten — baut Vertrauen
-"Brauche ich das?" → Spezifisches Problem finden
-"Kannst du dich verbessern?" → "Ich lerne nicht automatisch — Mo verbessert mich regelmäßig"
-Kurze Nachrichten → Frage was der Kunde wirklich braucht
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 KONTAKT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📱 Telefon/WhatsApp: +49 176 23976931
-📅 Termin buchen: https://calendly.com/hamudi963963/30min
+📧 Email: futurewerk@gmail.com
+📅 Termin buchen: ${CALENDLY_LINK}
+Instagram: @gastroaiagency
 
 Wenn Kunde nach Kontakt fragt → NUR Nummer nennen: +49 176 23976931
-NIEMALS Email oder Instagram ungefragt nennen!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💬 KOMMUNIKATIONSREGELN
@@ -181,9 +154,7 @@ NIEMALS Email oder Instagram ungefragt nennen!
 ✅ Emojis sparsam: 😊 👍 💡 ✅ 🚀
 ✅ Vollständig antworten — DANN fragen
 ✅ Termin/Calendly NUR EINMAL erwähnen
-✅ Vergangene Termine ablehnen freundlich
 ✅ JEDE Antwort mit Geschäftsvorteil verbinden
-✅ JEDE Antwort mit Frage abschließen
 
 ❌ Termin nach jeder Nachricht
 ❌ "Ich lerne aus Gesprächen"
@@ -197,6 +168,23 @@ app.post('/webhook', async (req, res) => {
 
   if (!message) return res.sendStatus(200);
 
+  // ─── Admin Modus ─────────────────────────────────────────
+  if (message.startsWith(ADMIN_PASSWORD)) {
+    const command = message.replace(ADMIN_PASSWORD, '').trim();
+    if (command.toLowerCase() === 'reset') {
+      customInstructions = '';
+      const twiml = new twilio.twiml.MessagingResponse();
+      twiml.message('✅ Admin: Anweisungen zurückgesetzt!');
+      res.type('text/xml');
+      return res.send(twiml.toString());
+    }
+    customInstructions = command;
+    const twiml = new twilio.twiml.MessagingResponse();
+    twiml.message(`✅ Admin: Neue Anweisung gespeichert!\n"${command}"`);
+    res.type('text/xml');
+    return res.send(twiml.toString());
+  }
+
   const isNewClient = !conversations[from];
 
   if (!conversations[from]) {
@@ -204,8 +192,8 @@ app.post('/webhook', async (req, res) => {
     clientData[from] = {
       hasPartnerCode: false,
       notified: false,
-      startTime: new Date(),
-      isFirst: true
+      calendlySent: false,
+      startTime: new Date()
     };
   }
 
@@ -217,6 +205,7 @@ app.post('/webhook', async (req, res) => {
     return res.send(twiml.toString());
   }
 
+  // ─── START50 ─────────────────────────────────────────────
   if (message.toUpperCase().includes('START50')) {
     clientData[from].hasPartnerCode = true;
     const reply = '✅ Partner-Code erkannt! Sie erhalten 50% Rabatt auf das erste Monat! 🎉\n\nWie heißen Sie? 😊';
@@ -228,8 +217,8 @@ app.post('/webhook', async (req, res) => {
     return res.send(twiml.toString());
   }
 
-  // فحص لو العميل يريد حجز موعد مباشرة
-  const bookingKeywords = ['termin', 'buchen', 'kalender', 'wann', 'verfügbar', 'demo', 'treffen', 'meeting'];
+  // ─── Calendly direkt ─────────────────────────────────────
+  const bookingKeywords = ['termin', 'buchen', 'kalender', 'wann', 'verfügbar', 'demo', 'treffen', 'meeting', 'موعد', 'احجز'];
   const wantsBooking = bookingKeywords.some(k => message.toLowerCase().includes(k));
   if (wantsBooking && !clientData[from].calendlySent) {
     clientData[from].calendlySent = true;
@@ -250,16 +239,16 @@ app.post('/webhook', async (req, res) => {
       max_tokens: 600,
       temperature: 0.7,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: getSystemPrompt() },
         ...conversations[from]
       ]
     });
 
     const reply = response.choices[0].message.content;
     conversations[from].push({ role: 'assistant', content: reply });
-    clientData[from].isFirst = false;
 
-    if ((reply.includes('meldet sich') || reply.includes('24 Stunden') || reply.includes('Calendly') || reply.includes('calendly')) && !clientData[from].notified) {
+    // ─── إشعار للمالك ────────────────────────────────────
+    if ((reply.includes('meldet sich') || reply.includes('24 Stunden') || reply.includes('calendly')) && !clientData[from].notified) {
       clientData[from].notified = true;
       try {
         const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -271,7 +260,7 @@ app.post('/webhook', async (req, res) => {
         await client.messages.create({
           from: process.env.TWILIO_WHATSAPP_NUMBER,
           to: MY_NUMBER,
-          body: `🔔 *Neuer Kunde ist bereit!*\n📱 ${from}\n${clientData[from].hasPartnerCode ? '⭐ START50 verwendet!\n' : ''}${clientData[from].calendlySent ? '📅 Hat Calendly-Link erhalten!\n' : ''}\n📝 Zusammenfassung:\n${summary}`
+          body: `🔔 *Neuer Kunde bei FutureWerk!*\n📱 ${from}\n${clientData[from].hasPartnerCode ? '⭐ START50 verwendet!\n' : ''}${clientData[from].calendlySent ? '📅 Calendly-Link erhalten!\n' : ''}\n📝 Zusammenfassung:\n${summary}`
         });
       } catch (e) {
         console.error('Benachrichtigungsfehler:', e.message);
@@ -292,7 +281,7 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('GastroAI Bot ✅ Online'));
+app.get('/', (req, res) => res.send('FutureWerk Bot ✅ Online'));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ GastroAI Bot شغال على البورت ${PORT}`));
+app.listen(PORT, () => console.log(`✅ FutureWerk Bot شغال على البورت ${PORT}`));
